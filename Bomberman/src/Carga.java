@@ -20,10 +20,11 @@ public class Carga{
 		
 		for (int i = 0; i < alto; i++) {
 			for (int j = 0; j < ancho; j++) {
+				//Asigna valores a la matriz dependiendo el color
 				Color colorPixel = new Color(imagen.getRGB(j, i));
 				
-				//Color suelo
-				if (colorPixel.equals(Color.decode("#13bc42"))) {
+				//Suelo
+				if (colorPixel.equals(Color.WHITE)) {
 					matriz[i][j] = 0;
 				} 
 				//Color paredes

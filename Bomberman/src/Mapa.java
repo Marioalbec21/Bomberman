@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import java.util.Random;
 
 public class Mapa extends JPanel {
 
@@ -13,6 +14,8 @@ public class Mapa extends JPanel {
     private int columnas = 0;
     private BufferedImage imagen;
     
+    private int[][] matrizSuelo;
+  
     //Ubicación inicial del jugador
     private int inicioFilaJugador;
     private int inicioColumnaJugador;
@@ -33,6 +36,7 @@ public class Mapa extends JPanel {
         setVisible(true);
 		setFocusable(true);
 		
+		generarSuelo();
 		encontrarJugador();
     }
 
@@ -48,12 +52,23 @@ public class Mapa extends JPanel {
 
             	//Dibuja el mapa
             	if(mapa[i][j] == -1) {
-                    g.setColor(Color.decode("#13bc42")); //Color suelo
+                    g.setColor(Color.decode("#23a647")); //Color suelo 1
             	}
             	else {
             		Color colorPixel = new Color(imagen.getRGB(j, i));
             		g.setColor(colorPixel);
             	}
+                //Dibuja el suelo con el patrón de la matriz suelo
+                if (mapa[i][j] == 0 && i < filas-1 && j < columnas-1) {
+                    switch (matrizSuelo[i][j]) {
+                        case 1:
+                            g.setColor(Color.decode("#13bc42")); // Color suelo 1
+                            break;
+                        case 2:
+                            g.setColor(Color.decode("#23a647")); // Color suelo 2
+                            break;
+                    }
+                }
                 g.fillRect(j * anchoCelda, i * altoCelda, anchoCelda, altoCelda);
                 
                 //Pinta al jugador en la nueva posición
@@ -78,6 +93,19 @@ public class Mapa extends JPanel {
     	inicioColumnaJugador = columnaJugador;
     }
     
+    public void generarSuelo() {
+    	matrizSuelo = new int[filas-1][columnas-1];
+		
+    	//Genera un patrón aleatorio para el suelo
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+            	if(mapa[i][j] == 0) {
+            		Random random = new Random();
+            		matrizSuelo[i][j] = random.nextInt(2) + 1;
+            	}
+            }
+        }
+    }
     public boolean eleccionSalida() {
   	    int opcion = JOptionPane.showConfirmDialog(null, "¿Deseas jugar otro nivel?", "Nuevo nivel", JOptionPane.YES_NO_OPTION);
         
@@ -94,6 +122,8 @@ public class Mapa extends JPanel {
         mapaCompletado = false;
         repaint();
         requestFocusInWindow();
+        
+		generarSuelo();
     }
     
     public void actualizarMapa(int[][] mapa) {
