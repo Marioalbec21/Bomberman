@@ -48,16 +48,16 @@ public class Mapa extends JPanel {
 
             	//Dibuja el mapa
             	if(mapa[i][j] == -1) {
-                    g.setColor(Color.WHITE);
+                    g.setColor(Color.decode("#13bc42")); //Color suelo
             	}
             	else {
             		Color colorPixel = new Color(imagen.getRGB(j, i));
             		g.setColor(colorPixel);
-            		g.fillRect(j * anchoCelda, i * altoCelda, anchoCelda, altoCelda);            		
             	}
+                g.fillRect(j * anchoCelda, i * altoCelda, anchoCelda, altoCelda);
                 
                 //Pinta al jugador en la nueva posición
-                g.setColor(Color.BLUE);
+                g.setColor(Color.decode("#ff3d80")); //Color jugador
                 g.fillRect(columnaJugador * anchoCelda, filaJugador * altoCelda, anchoCelda, altoCelda);
             }
         }

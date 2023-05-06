@@ -21,15 +21,17 @@ public class Carga{
 		for (int i = 0; i < alto; i++) {
 			for (int j = 0; j < ancho; j++) {
 				Color colorPixel = new Color(imagen.getRGB(j, i));
-				if (colorPixel.equals(Color.WHITE)) {
+				
+				//Color suelo
+				if (colorPixel.equals(Color.decode("#13bc42"))) {
 					matriz[i][j] = 0;
 				} 
 				//Color paredes
-				if (colorPixel.equals(Color.BLACK) || colorPixel.equals(new Color(88,88,88))) {
+				if (colorPixel.equals(Color.decode("#535d58"))) {
 					matriz[i][j] = 1;
 				}
 				//Color del jugador
-				if (colorPixel.equals(Color.BLUE)) {
+				if (colorPixel.equals(Color.decode("#ff3d80"))) {
 					matriz[i][j] = -1;
 				}
 			}
