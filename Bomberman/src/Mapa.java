@@ -94,18 +94,21 @@ public class Mapa extends JPanel {
     }
     
     public void generarSuelo() {
-    	matrizSuelo = new int[filas-1][columnas-1];
-		
-    	//Genera un patrón aleatorio para el suelo
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-            	if(mapa[i][j] == 0) {
-            		Random random = new Random();
-            		matrizSuelo[i][j] = random.nextInt(2) + 1;
-            	}
+        int sueloFilas = filas - 1;
+        int sueloColumnas = columnas - 1;
+        matrizSuelo = new int[sueloFilas][sueloColumnas];
+
+        // Genera un patrón aleatorio para el suelo
+        for (int i = 0; i < sueloFilas; i++) {
+            for (int j = 0; j < sueloColumnas; j++) {
+                if (mapa[i][j] == 0) {
+                    Random random = new Random();
+                    matrizSuelo[i][j] = random.nextInt(2) + 1;
+                }
             }
         }
     }
+
     public boolean eleccionSalida() {
   	    int opcion = JOptionPane.showConfirmDialog(null, "¿Deseas jugar otro nivel?", "Nuevo nivel", JOptionPane.YES_NO_OPTION);
         
