@@ -28,7 +28,7 @@ public class Carga{
 					matriz[i][j] = 0;
 				} 
 				//Color paredes
-				if (colorPixel.equals(Color.decode("#535d58"))) {
+				if (colorPixel.equals(Color.decode("#464646"))) {
 					matriz[i][j] = 1;
 				}
 				//Color del jugador

@@ -15,7 +15,8 @@ public class Mapa extends JPanel {
     private BufferedImage imagen;
     
     private int[][] matrizSuelo;
-  
+    private int[][] matrizRompibles;
+    
     //Ubicación inicial del jugador
     private int inicioFilaJugador;
     private int inicioColumnaJugador;
@@ -37,6 +38,7 @@ public class Mapa extends JPanel {
 		setFocusable(true);
 		
 		generarSuelo();
+		generarParedesRompibles();
 		encontrarJugador();
     }
 
@@ -59,13 +61,24 @@ public class Mapa extends JPanel {
             		g.setColor(colorPixel);
             	}
                 //Dibuja el suelo con el patrón de la matriz suelo
-                if (mapa[i][j] == 0 && i < filas-1 && j < columnas-1) {
+                if (mapa[i][j] == 0) {
                     switch (matrizSuelo[i][j]) {
                         case 1:
                             g.setColor(Color.decode("#13bc42")); // Color suelo 1
                             break;
                         case 2:
                             g.setColor(Color.decode("#23a647")); // Color suelo 2
+                            break;
+                    }
+                }
+                if (mapa[i][j] == 1) {
+                    switch (matrizRompibles[i][j]) {
+                        case 1:
+                        	g.setColor(Color.decode("#be571d")); // Color suelo 2                        	
+                            break;
+                        case 2:
+                            break;
+                        case 3:
                             break;
                     }
                 }
@@ -93,14 +106,23 @@ public class Mapa extends JPanel {
     	inicioColumnaJugador = columnaJugador;
     }
     
+    public void limpiarMapa() {
+    	
+    	for (int i = 0; i < filas; i++) {
+    		for (int j = 0; j < columnas; j++) {
+    			if (mapa[i][j] == 1 && matrizRompibles[i][j] == 1) {
+    				mapa[i][j] = 0;
+    			}
+    		}
+    	}
+    }
+    
     public void generarSuelo() {
-        int sueloFilas = filas - 1;
-        int sueloColumnas = columnas - 1;
-        matrizSuelo = new int[sueloFilas][sueloColumnas];
+        matrizSuelo = new int[filas][columnas];
 
-        // Genera un patrón aleatorio para el suelo
-        for (int i = 0; i < sueloFilas; i++) {
-            for (int j = 0; j < sueloColumnas; j++) {
+        //Genera un patrón aleatorio para el suelo
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
                 if (mapa[i][j] == 0) {
                     Random random = new Random();
                     matrizSuelo[i][j] = random.nextInt(2) + 1;
@@ -108,7 +130,26 @@ public class Mapa extends JPanel {
             }
         }
     }
+    
+    float probabilidadRompibles = 0.5f; //Probabilidad de generar una pared rompible (entre 0 y 1)
+    public void generarParedesRompibles() {
+    	matrizRompibles = new int[filas][columnas];
 
+    	//Genera las paredes rompibles
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                if(mapa[i][j] == 0) {
+                    Random random = new Random();   
+                    
+                    if (random.nextFloat() <= probabilidadRompibles) {
+                        matrizRompibles[i][j] = 1;
+                    	mapa[i][j] = 1;
+                    }
+                }
+            }
+        }
+    }
+    
     public boolean eleccionSalida() {
   	    int opcion = JOptionPane.showConfirmDialog(null, "¿Deseas jugar otro nivel?", "Nuevo nivel", JOptionPane.YES_NO_OPTION);
         
@@ -126,7 +167,9 @@ public class Mapa extends JPanel {
         repaint();
         requestFocusInWindow();
         
+        limpiarMapa();
 		generarSuelo();
+		generarParedesRompibles();
     }
     
     public void actualizarMapa(int[][] mapa) {
