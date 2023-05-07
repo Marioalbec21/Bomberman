@@ -39,7 +39,7 @@ public class Ventana extends JFrame {
 		contentPane.add(reloj, BorderLayout.NORTH);
 		
 		//Mapas
-		Carga nivel1 = new Carga("nivel1.png");
+		Carga nivel1 = new Carga("resources\nivel1.png");
 
 		reloj.iniciar();
 		Mapa juego = new Mapa(nivel1.getMatriz(), nivel1.getImagen());
