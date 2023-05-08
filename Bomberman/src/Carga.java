@@ -7,33 +7,33 @@ import javax.imageio.ImageIO;
 public class Carga{
 	
 	private int[][] matriz;
-	private BufferedImage imagen;
+	private BufferedImage dibujo;
 	
-	public Carga(String ruta) throws IOException {		
+	public Carga(String ruta) {		
 
-		imagen = ImageIO.read(new File(ruta));
+		try {
+			dibujo = ImageIO.read(new File(ruta));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
-		int ancho = imagen.getWidth();
-		int alto = imagen.getHeight();
+		int ancho = dibujo.getWidth();
+		int alto = dibujo.getHeight();
 		
 		matriz = new int[alto][ancho];
 		
 		for (int i = 0; i < alto; i++) {
 			for (int j = 0; j < ancho; j++) {
 				//Asigna valores a la matriz dependiendo el color
-				Color colorPixel = new Color(imagen.getRGB(j, i));
+				Color colorPixel = new Color(dibujo.getRGB(j, i));
 				
 				//Suelo
 				if (colorPixel.equals(Color.WHITE)) {
 					matriz[i][j] = 0;
 				} 
 				//Color paredes
-				if (colorPixel.equals(Color.decode("#464646"))) {
+				if (colorPixel.equals(Color.BLACK)) {
 					matriz[i][j] = 1;
-				}
-				//Color del jugador
-				if (colorPixel.equals(Color.decode("#ff3d80"))) {
-					matriz[i][j] = -1;
 				}
 			}
 		}
@@ -43,7 +43,7 @@ public class Carga{
 		return matriz;
 	}
 
-	public BufferedImage getImagen() {
-		return imagen;
+	public BufferedImage getDibujo() {
+		return dibujo;
 	}
 }

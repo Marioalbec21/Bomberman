@@ -1,9 +1,9 @@
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Mapa extends JPanel {
@@ -12,24 +12,27 @@ public class Mapa extends JPanel {
     private int[][] mapa;
     private int filas = 0;
     private int columnas = 0;
-    private BufferedImage imagen;
     
     private int[][] matrizSuelo;
     private int[][] matrizRompibles;
     
-    //Ubicación inicial del jugador
-    private int inicioFilaJugador;
-    private int inicioColumnaJugador;
-    
-    //Ubicación del jugador
-    private int filaJugador;
-    private int columnaJugador;
+    //Iniciar recursos
+    private Jugador jugador = null;
+    private List<Enemigo> enemigos = new ArrayList<>();
+
+    private Carga pasto1 = null;
+    private Carga pasto2 = null;
+    private Carga paredes = null;
+    private Carga paredesRompibles = null;
     
     private boolean mapaCompletado = false;
     
-    public Mapa(int[][] mapa, BufferedImage imagen) {
+    //Variables
+    float probabilidadRompibles = 0.4f; //Probabilidad de generar una pared rompible (entre 0 y 1)
+    int cantidadEnemigos = 3; //Cantidad de enemigos en el mapa
+
+    public Mapa(int[][] mapa) {
         this.mapa = mapa;
-        this.imagen = imagen;
         this.filas = mapa.length;
         this.columnas = mapa[0].length;
 
@@ -39,8 +42,10 @@ public class Mapa extends JPanel {
 		
 		generarSuelo();
 		generarParedesRompibles();
-		encontrarJugador();
-    }
+		cargarRecursos();
+		generarJugador();
+		generarEnemigo();
+	}
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -52,86 +57,60 @@ public class Mapa extends JPanel {
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
 
-            	//Dibuja el mapa
-            	if(mapa[i][j] == -1) {
-                    g.setColor(Color.decode("#23a647")); //Color suelo 1
-            	}
-            	else {
-            		Color colorPixel = new Color(imagen.getRGB(j, i));
-            		g.setColor(colorPixel);
-            	}
                 //Dibuja el suelo con el patrón de la matriz suelo
                 if (mapa[i][j] == 0) {
                     switch (matrizSuelo[i][j]) {
                         case 1:
-                            g.setColor(Color.decode("#13bc42")); // Color suelo 1
+                        	//Color suelo 1
+	                		g.drawImage(pasto1.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
                             break;
                         case 2:
-                            g.setColor(Color.decode("#23a647")); // Color suelo 2
+                        	//Color suelo 2
+	                		g.drawImage(pasto2.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
                             break;
                     }
                 }
-                if (mapa[i][j] == 1) {
+                //Dibuja las paredes no rompibles
+                if (mapa[i][j] == 1 && matrizRompibles[i][j] == 0) {
+                	switch (mapa[i][j]) {
+	                	case 1:
+	                		g.drawImage(paredes.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
+	                		break;
+                	}
+                }
+                //Dibuja las paredes rompibles
+                if (mapa[i][j] == 1 && matrizRompibles[i][j] == 1) {
                     switch (matrizRompibles[i][j]) {
                         case 1:
-                        	g.setColor(Color.decode("#be571d")); // Color suelo 2                        	
-                            break;
-                        case 2:
-                            break;
-                        case 3:
+                        	g.drawImage(paredesRompibles.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
                             break;
                     }
                 }
-                g.fillRect(j * anchoCelda, i * altoCelda, anchoCelda, altoCelda);
                 
-                //Pinta al jugador en la nueva posición
-                g.setColor(Color.decode("#ff3d80")); //Color jugador
-                g.fillRect(columnaJugador * anchoCelda, filaJugador * altoCelda, anchoCelda, altoCelda);
-            }
-        }
-    }
-    
-    public void encontrarJugador() {
-    	//Busca la posición inicial del jugador
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                if (mapa[i][j] == -1) {
-                	filaJugador = i;
-                	columnaJugador = j;
-                    break;
+                //Dibuja la imagen en la posición del jugador
+                g.drawImage(jugador.getDibujo(), jugador.getColumnaJugador() * anchoCelda, jugador.getFilaJugador() * altoCelda, anchoCelda, altoCelda, null);
+                //Dibuja la imagen de cada enemigo en su posición correspondiente
+                for (Enemigo enemigo : enemigos) {
+                    g.drawImage(enemigo.getDibujo(), enemigo.getColumnaEnemigo() * anchoCelda, enemigo.getFilaEnemigo() * altoCelda, anchoCelda, altoCelda, null);
                 }
             }
         }
-    	inicioFilaJugador = filaJugador;
-    	inicioColumnaJugador = columnaJugador;
     }
     
-    public void limpiarMapa() {
+    public void generarSuelo() {
+    	matrizSuelo = new int[filas][columnas];
     	
+    	//Genera un patrón aleatorio para el suelo
     	for (int i = 0; i < filas; i++) {
     		for (int j = 0; j < columnas; j++) {
-    			if (mapa[i][j] == 1 && matrizRompibles[i][j] == 1) {
-    				mapa[i][j] = 0;
+    			if (mapa[i][j] == 0) {
+    				Random random = new Random();
+    				matrizSuelo[i][j] = random.nextInt(2) + 1;
     			}
     		}
     	}
     }
     
-    public void generarSuelo() {
-        matrizSuelo = new int[filas][columnas];
-
-        //Genera un patrón aleatorio para el suelo
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                if (mapa[i][j] == 0) {
-                    Random random = new Random();
-                    matrizSuelo[i][j] = random.nextInt(2) + 1;
-                }
-            }
-        }
-    }
-    
-    float probabilidadRompibles = 0.5f; //Probabilidad de generar una pared rompible (entre 0 y 1)
     public void generarParedesRompibles() {
     	matrizRompibles = new int[filas][columnas];
 
@@ -150,6 +129,64 @@ public class Mapa extends JPanel {
         }
     }
     
+    public void cargarRecursos() {
+		jugador = new Jugador();
+	
+		pasto1 = new Carga("resources/pasto1.png");
+		pasto2 = new Carga("resources/pasto2.png");
+		
+		paredes = new Carga("resources/pared1.png");
+		paredesRompibles = new Carga("resources/pared2.png");
+    }
+    
+    public void generarJugador() {
+        Random random = new Random();
+        
+        while (true) {
+            jugador.setFilaJugador(random.nextInt(filas));
+            jugador.setColumnaJugador(random.nextInt(columnas));
+            
+            if (mapa[jugador.getFilaJugador()][jugador.getColumnaJugador()] == 0 
+            		&& matrizRompibles[jugador.getFilaJugador()][jugador.getColumnaJugador()] == 0) {
+                break;
+            }
+        }
+    }
+    
+    public void generarEnemigo() {
+        Random random = new Random();
+        enemigos.clear(); //Limpia la lista de enemigos
+
+        for (int i = 0; i < cantidadEnemigos; i++) {
+            Enemigo enemigo = new Enemigo();
+
+            while (true) {
+                int fila = random.nextInt(filas);
+                int columna = random.nextInt(columnas);
+
+                if (mapa[fila][columna] == 0 && matrizRompibles[fila][columna] == 0 &&
+                    !(fila == jugador.getFilaJugador() && columna == jugador.getColumnaJugador())) {
+                    enemigo.setFilaEnemigo(fila);
+                    enemigo.setColumnaEnemigo(columna);
+                    break;
+                }
+            }
+
+            enemigos.add(enemigo); //Agrega el enemigo generado a la lista de enemigos
+        }
+    }
+
+    public void limpiarMapa() {
+    	
+    	for (int i = 0; i < filas; i++) {
+    		for (int j = 0; j < columnas; j++) {
+    			if (mapa[i][j] == 1 && matrizRompibles[i][j] == 1) {
+    				mapa[i][j] = 0;
+    			}
+    		}
+    	}
+    }
+    
     public boolean eleccionSalida() {
   	    int opcion = JOptionPane.showConfirmDialog(null, "¿Deseas jugar otro nivel?", "Nuevo nivel", JOptionPane.YES_NO_OPTION);
         
@@ -161,8 +198,6 @@ public class Mapa extends JPanel {
     }
     
 	public void reiniciarJuego() {
-        filaJugador = inicioFilaJugador;
-        columnaJugador = inicioColumnaJugador;
         mapaCompletado = false;
         repaint();
         requestFocusInWindow();
@@ -170,21 +205,29 @@ public class Mapa extends JPanel {
         limpiarMapa();
 		generarSuelo();
 		generarParedesRompibles();
+        generarJugador();
+		generarEnemigo();
     }
     
     public void actualizarMapa(int[][] mapa) {
         this.mapa = mapa;
         this.filas = mapa.length;
         this.columnas = mapa[0].length;
-        this.filaJugador = this.columnaJugador = 1;
         this.mapaCompletado = false;
         
-		encontrarJugador();		
         this.repaint();
     }
     
 	public int[][] getMapa() {
 		return mapa;
+	}
+	
+	public int getFilas() {
+		return filas;
+	}
+	
+	public void setFilas(int filas) {
+		this.filas = filas;
 	}
 	
 	public int getColumnas() {
@@ -195,28 +238,8 @@ public class Mapa extends JPanel {
 		this.columnas = columnas;
 	}
 
-	public int getFilas() {
-		return filas;
-	}
-
-	public void setFilas(int filas) {
-		this.filas = filas;
-	}
-
-	public void setColumnaJugador(int columnaJugador) {
-		this.columnaJugador = columnaJugador;
-	}
-
-	public void setFilaJugador(int filaJugador) {
-		this.filaJugador = filaJugador;
-	}
-
-	public int getFilaJugador() {
-		return filaJugador;
-	}
-
-	public int getColumnaJugador() {
-		return columnaJugador;
+	public Jugador getJugador() {
+		return jugador;
 	}
 
 	public void setMapaCompletado(boolean mapaCompletado) {

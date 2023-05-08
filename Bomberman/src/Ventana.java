@@ -42,11 +42,11 @@ public class Ventana extends JFrame {
 		Carga nivel1 = new Carga("resources/nivel1.png");
 
 		reloj.iniciar();
-		Mapa juego = new Mapa(nivel1.getMatriz(), nivel1.getImagen());
-		contentPane.add(juego, BorderLayout.CENTER);
+		Mapa mapa = new Mapa(nivel1.getMatriz());
+		contentPane.add(mapa, BorderLayout.CENTER);
 		
 		//Metodos teclado
-        juego.addKeyListener(new KeyListener() {
+        mapa.addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -57,33 +57,37 @@ public class Ventana extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 			    char tecla = e.getKeyChar();
-			    if (!juego.isMapaCompletado()) {
+			    if (!mapa.isMapaCompletado()) {
 
 				    //Mueve al jugador 1 casilla a la izquierda
 				    if (tecla == 'a') {
-				        if (juego.getColumnaJugador() > 0 && juego.getMapa()[juego.getFilaJugador()][juego.getColumnaJugador() - 1] != 1) {
-				        	juego.setColumnaJugador(juego.getColumnaJugador()-1);
+				        if (mapa.getJugador().getColumnaJugador() > 0 && 
+				        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() - 1] != 1) {
+				        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()-1);
 				            repaint();
 				        }
 				    }
 				    //Mueve al jugador 1 casilla abajo
 				    if (tecla == 's') {
-				        if (juego.getFilaJugador() < juego.getFilas() - 1 && juego.getMapa()[juego.getFilaJugador() + 1][juego.getColumnaJugador()] != 1) {
-				        	juego.setFilaJugador(juego.getFilaJugador()+1);
+				        if (mapa.getJugador().getFilaJugador() < mapa.getFilas() - 1 && 
+				        	mapa.getMapa()[mapa.getJugador().getFilaJugador() + 1][mapa.getJugador().getColumnaJugador()] != 1) {
+				        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()+1);
 				            repaint();
 				        }
 				    }
 				    //Mueve al jugador 1 casilla arriba
 				    if (tecla == 'w') {
-				    	if (juego.getFilaJugador() > 0 && juego.getMapa()[juego.getFilaJugador() - 1][juego.getColumnaJugador()] != 1) {
-				        	juego.setFilaJugador(juego.getFilaJugador()-1);
+				    	if (mapa.getJugador().getFilaJugador() > 0 && 
+				    		mapa.getMapa()[mapa.getJugador().getFilaJugador() - 1][mapa.getJugador().getColumnaJugador()] != 1) {
+				        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()-1);
 				    		repaint();
 				    	}
 				    }
 				    //Mueve al jugador 1 casilla a la derecha
 				    if (tecla == 'd') {
-				        if (juego.getColumnaJugador() < juego.getColumnas() - 1 && juego.getMapa()[juego.getFilaJugador()][juego.getColumnaJugador() + 1] != 1) {
-				        	juego.setColumnaJugador(juego.getColumnaJugador()+1);
+				        if (mapa.getJugador().getColumnaJugador() < mapa.getColumnas() - 1 && 
+				        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() + 1] != 1) {
+				        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()+1);
 				            repaint();
 				        }
 			        }
@@ -92,7 +96,7 @@ public class Ventana extends JFrame {
 			    	reloj.detener();
 		    	    JOptionPane.showMessageDialog(null, "¡Felicidades, has ganado!");
 
-		        	if(juego.eleccionSalida()) {	
+		        	if(mapa.eleccionSalida()) {	
 		        		reloj.reiniciar();
 		        		//juego.actualizarMapa(nivel2.getMatriz());
 		        	}
@@ -114,7 +118,7 @@ public class Ventana extends JFrame {
 		btnNewButton.setFont(new Font("Brock", Font.PLAIN, 16));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-		        juego.reiniciarJuego();
+		        mapa.reiniciarJuego();
 		        reloj.reiniciar();
 			}
 		});
