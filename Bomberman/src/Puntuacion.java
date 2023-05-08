@@ -22,15 +22,17 @@ public class Puntuacion extends JPanel {
         setLayout(new BorderLayout());
         add(puntuacionLabel, BorderLayout.CENTER);
     }
-    public void actualizarPuntaje() {
-        puntuacionLabel = new JLabel("Puntaje: " + puntaje);
-    }
+
 	public int getPuntaje() {
 		return puntaje;
 	}
 
-	public void setPuntaje(int puntaje) {
+	public void setPuntuacion(int puntaje) {
 		this.puntaje = puntaje;
+        puntuacionLabel.setText("Score: " + puntaje);
 	}
-    
+	
+	public void reiniciarPuntuacion() {
+        puntuacionLabel.setText("Score: " + 0);
+	}
 }
