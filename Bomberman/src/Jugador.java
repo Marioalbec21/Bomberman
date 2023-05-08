@@ -16,7 +16,7 @@ public class Jugador {
     
     public Jugador() {
     	try {
-			dibujo = ImageIO.read(new File("resources/jugador.png"));
+			dibujo = ImageIO.read(new File("Bomberman/resources/jugador.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

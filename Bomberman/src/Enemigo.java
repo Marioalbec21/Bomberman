@@ -14,7 +14,7 @@ public class Enemigo {
     
     public Enemigo() {
     	try {
-			dibujo = ImageIO.read(new File("resources/enemigo.png"));
+			dibujo = ImageIO.read(new File("Bomberman/resources/enemigo.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

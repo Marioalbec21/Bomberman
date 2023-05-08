@@ -29,12 +29,12 @@ public class Mapa extends JPanel {
     private Jugador jugador = new Jugador();
     private List<Enemigo> enemigos = new ArrayList<>();
     
-    private Carga pasto1 = new Carga("resources/pasto1.png");;
-    private Carga pasto2 = new Carga("resources/pasto2.png");;
-    private Carga paredes = new Carga("resources/pared1.png");
-    private Carga paredesRompibles = new Carga("resources/pared2.png");;
-    private Carga bomba = new Carga("resources/bomba.png");;
-    private Carga fuego = new Carga("resources/fuego.png");;
+    private Carga pasto1 = new Carga("Bomberman/resources/pasto1.png");;
+    private Carga pasto2 = new Carga("Bomberman/resources/pasto2.png");;
+    private Carga paredes = new Carga("Bomberman/resources/pared1.png");
+    private Carga paredesRompibles = new Carga("Bomberman/resources/pared2.png");;
+    private Carga bomba = new Carga("Bomberman/resources/bomba.png");;
+    private Carga fuego = new Carga("Bomberman/resources/fuego.png");;
 
     private boolean mapaCompletado = false;
     		

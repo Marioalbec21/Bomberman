@@ -48,7 +48,7 @@ public class Ventana extends JFrame {
 		contentPane.add(reloj, BorderLayout.NORTH);
 		
 		//Mapas
-		Carga nivel1 = new Carga("resources/nivel1.png");
+		Carga nivel1 = new Carga("Bomberman/resources/nivel1.png");
 
 		reloj.iniciar();
 		Mapa mapa = new Mapa(nivel1.getMatriz(), rompibles, cantidadEnemigos, 
