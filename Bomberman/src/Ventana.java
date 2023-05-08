@@ -125,6 +125,7 @@ public class Ventana extends JFrame {
 				        
 				        Bomba bomba = new Bomba(filaJugador, columnaJugador, tiempoExplosionBombas);
 				        
+				        
 				        // Agregar la bomba al mapa
 				        mapa.agregarBomba(bomba);
 				        repaint();

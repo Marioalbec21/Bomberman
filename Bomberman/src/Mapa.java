@@ -417,6 +417,7 @@ public class Mapa extends JPanel {
         requestFocusInWindow();
         repaint();
         
+        fondo.play(0.02f);
         limpiarMapa();
 		generarSuelo();
 		generarParedesRompibles();
