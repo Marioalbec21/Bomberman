@@ -435,6 +435,8 @@ public class Mapa extends JPanel {
     	if(!jugador.isVisible()) {
     		fondo.detener();
         	JOptionPane.showMessageDialog(null, "¡Game Over!");
+    	} else {
+    	    JOptionPane.showMessageDialog(null, "¡Felicidades, has ganado!");
     	}
   	    int opcion = JOptionPane.showConfirmDialog(null, "¿Deseas jugar otro nivel?", "Nuevo nivel", JOptionPane.YES_NO_OPTION);
         

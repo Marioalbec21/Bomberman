@@ -59,11 +59,13 @@ public class Ventana extends JFrame {
 		//Timer para la deteccion de colisiones
 		timer = new Timer(10, e -> {
 			
+			//Validacion y opciones si pierde
             if (mapa.getMatrizBombas()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador()] == 2 ||
             		mapa.detectarColisionJugador()) {
             	
             	mapa.getJugador().setVisible(false);
             	reloj.detener();
+            	
             	if(mapa.eleccionSalida()) {
             		mapa.reiniciarJuego();
             		reloj.reiniciar();
@@ -72,17 +74,18 @@ public class Ventana extends JFrame {
             		System.exit(0);
             	}    
             }
+			//Validacion y opciones si gana
             if (mapa.getEnemigos().isEmpty()) {
-            	mapa.setMapaCompletado(true);
-            }
-            if(mapa.isMapaCompletado()) {
             	reloj.detener();
-	    	    JOptionPane.showMessageDialog(null, "¡Felicidades, has ganado!");
 
 	        	if(mapa.eleccionSalida()) {	
+            		mapa.reiniciarJuego();
 	        		reloj.reiniciar();
 	        		//juego.actualizarMapa(nivel2.getMatriz());
 	        	}
+	        	else {
+            		System.exit(0);
+            	}   
             }
         });
         timer.start();
@@ -100,50 +103,53 @@ public class Ventana extends JFrame {
 			public void keyPressed(KeyEvent e) {
 			    char tecla = e.getKeyChar();
 			    //Mueve al jugador 1 casilla a la izquierda
-			    if (tecla == 'a') {
-			        if (mapa.getJugador().getColumnaJugador() > 0 && 
-			        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() - 1] != 1) {
-			        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()-1);
-			            repaint();
-			        }
-			    }
-			    //Mueve al jugador 1 casilla abajo
-			    if (tecla == 's') {
-			        if (mapa.getJugador().getFilaJugador() < mapa.getFilas() - 1 && 
-			        	mapa.getMapa()[mapa.getJugador().getFilaJugador() + 1][mapa.getJugador().getColumnaJugador()] != 1) {
-			        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()+1);
-			            repaint();
-			        }
-			    }
-			    //Mueve al jugador 1 casilla arriba
-			    if (tecla == 'w') {
-			    	if (mapa.getJugador().getFilaJugador() > 0 && 
-			    		mapa.getMapa()[mapa.getJugador().getFilaJugador() - 1][mapa.getJugador().getColumnaJugador()] != 1) {
-			        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()-1);
-			    		repaint();
-			    	}
-			    }
-			    //Mueve al jugador 1 casilla a la derecha
-			    if (tecla == 'd') {
-			        if (mapa.getJugador().getColumnaJugador() < mapa.getColumnas() - 1 && 
-			        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() + 1] != 1) {
-			        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()+1);
-			            repaint();
-			        }
-		        }
-			    //Genera 1 bomba en la posisión del jugador
-			    if (tecla == KeyEvent.VK_SPACE) {
+	            if(!mapa.isMapaCompletado()) {
 
-			        int filaJugador = mapa.getJugador().getFilaJugador();
-			        int columnaJugador = mapa.getJugador().getColumnaJugador();
-			        
-			        Bomba bomba = new Bomba(filaJugador, columnaJugador, tiempoExplosionBombas);
-			        
-			        
-			        // Agregar la bomba al mapa
-			        mapa.agregarBomba(bomba);
-			        repaint();
-		        }
+				    if (tecla == 'a') {
+				        if (mapa.getJugador().getColumnaJugador() > 0 && 
+				        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() - 1] != 1) {
+				        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()-1);
+				            repaint();
+				        }
+				    }
+				    //Mueve al jugador 1 casilla abajo
+				    if (tecla == 's') {
+				        if (mapa.getJugador().getFilaJugador() < mapa.getFilas() - 1 && 
+				        	mapa.getMapa()[mapa.getJugador().getFilaJugador() + 1][mapa.getJugador().getColumnaJugador()] != 1) {
+				        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()+1);
+				            repaint();
+				        }
+				    }
+				    //Mueve al jugador 1 casilla arriba
+				    if (tecla == 'w') {
+				    	if (mapa.getJugador().getFilaJugador() > 0 && 
+				    		mapa.getMapa()[mapa.getJugador().getFilaJugador() - 1][mapa.getJugador().getColumnaJugador()] != 1) {
+				        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()-1);
+				    		repaint();
+				    	}
+				    }
+				    //Mueve al jugador 1 casilla a la derecha
+				    if (tecla == 'd') {
+				        if (mapa.getJugador().getColumnaJugador() < mapa.getColumnas() - 1 && 
+				        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() + 1] != 1) {
+				        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()+1);
+				            repaint();
+				        }
+			        }
+				    //Genera 1 bomba en la posisión del jugador
+				    if (tecla == KeyEvent.VK_SPACE) {
+	
+				        int filaJugador = mapa.getJugador().getFilaJugador();
+				        int columnaJugador = mapa.getJugador().getColumnaJugador();
+				        
+				        Bomba bomba = new Bomba(filaJugador, columnaJugador, tiempoExplosionBombas);
+				        
+				        
+				        // Agregar la bomba al mapa
+				        mapa.agregarBomba(bomba);
+				        repaint();
+			        }
+	            }
 			}
 
 			@Override
