@@ -19,6 +19,7 @@ public class Mapa extends JPanel {
 	private Musica fondo = new Musica();
 	private Musica soltar = new Musica();
 	private Musica explosion = new Musica();
+	private Musica muerte = new Musica();
 
     private static final long serialVersionUID = 1L;
     private int[][] mapa;
@@ -417,10 +418,10 @@ public class Mapa extends JPanel {
 	            		jugador.getColumnaJugador() == enemigo.getColumnaEnemigo()) {
 	            	
 	            	colision = true;
+	            	muerte.playMuerte(volumenEfectos);
 	            }
 	        }
         }
-        ////////////////////////////////////////////////////////////////////777
         return colision;
     }
 
@@ -441,6 +442,7 @@ public class Mapa extends JPanel {
     public boolean eleccionSalida() {
     	if(!jugador.isVisible()) {
     		fondo.detener();
+    		muerte.playMuerte(volumenEfectos);
         	JOptionPane.showMessageDialog(null, "¡Game Over!");
     	} else {
     	    JOptionPane.showMessageDialog(null, "¡Felicidades, has ganado!");
