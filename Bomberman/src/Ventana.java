@@ -66,6 +66,7 @@ public class Ventana extends JFrame {
 		
 		//Timer para la deteccion de colisiones
 		timer = new Timer(10, e -> {
+			puntuacion.setPuntuacion(mapa.getPuntuacion());
 			
 			//Validacion y opciones si pierde
             if (mapa.getMatrizBombas()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador()] == 2 ||
@@ -76,6 +77,7 @@ public class Ventana extends JFrame {
             	
             	if(mapa.eleccionSalida()) {
             		mapa.reiniciarJuego();
+            		puntuacion.reiniciarPuntuacion();
             		reloj.reiniciar();
             	}
             	else {
@@ -88,6 +90,7 @@ public class Ventana extends JFrame {
 
 	        	if(mapa.eleccionSalida()) {	
             		mapa.reiniciarJuego();
+            		puntuacion.reiniciarPuntuacion();
 	        		reloj.reiniciar();
 	        		//juego.actualizarMapa(nivel2.getMatriz());
 	        	}
@@ -174,6 +177,7 @@ public class Ventana extends JFrame {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 		        mapa.reiniciarJuego();
+        		puntuacion.reiniciarPuntuacion();
 		        reloj.reiniciar();
 			}
 		});

@@ -50,7 +50,8 @@ public class Mapa extends JPanel {
     private float tiempoFuegoBombas = 0f;
     private float volumenGeneral = 0f;
     private float volumenEfectos = 0f;
-
+    private int puntuacion = 0;
+    
     public Mapa(int[][] mapa, float rompibles, int cantidadEnemigos, 
     		float movimientoEnemigo, float tiempoFuegoBombas, float volumenGeneral, float volumenEfectos) {
     	        
@@ -301,6 +302,7 @@ public class Mapa extends JPanel {
         for (int i = fila; i >= Math.max(fila - 3, 0); i--) {
             if (matrizRompibles[i][columna] == 1) {
                 mapa[i][columna] = 0;
+                puntuacion += 5;
             } else if (mapa[i][columna] == 1) {
                 break;
             }
@@ -310,6 +312,7 @@ public class Mapa extends JPanel {
         for (int i = fila; i <= Math.min(fila + 3, filas - 1); i++) {
             if (matrizRompibles[i][columna] == 1) {
                 mapa[i][columna] = 0;
+                puntuacion += 5;
             } else if (mapa[i][columna] == 1) {
                 break;
             }
@@ -319,6 +322,7 @@ public class Mapa extends JPanel {
         for (int j = columna; j >= Math.max(columna - 3, 0); j--) {
             if (matrizRompibles[fila][j] == 1) {
                 mapa[fila][j] = 0;
+                puntuacion += 5;
             } else if (mapa[fila][j] == 1) {
                 break;
             }
@@ -328,6 +332,7 @@ public class Mapa extends JPanel {
         for (int j = columna; j <= Math.min(columna + 3, columnas - 1); j++) {
             if (matrizRompibles[fila][j] == 1) {
                 mapa[fila][j] = 0;
+                puntuacion += 5;
             } else if (mapa[fila][j] == 1) {
                 break;
             }
@@ -346,6 +351,7 @@ public class Mapa extends JPanel {
                 (enemigoColumna == columna && enemigoFila >= fila - 1 && enemigoFila <= fila + 1) ||
                 matrizBombas[enemigoFila][enemigoColumna] == 2) {
                 iterator.remove();
+                puntuacion += 10;
             }
         }
     }
@@ -458,6 +464,7 @@ public class Mapa extends JPanel {
     
 	public void reiniciarJuego() {
         mapaCompletado = false;
+		puntuacion = 0;
         requestFocusInWindow();
         repaint();
         
@@ -542,5 +549,9 @@ public class Mapa extends JPanel {
 	
 	public void setVolumenEfectos(float volumenEfectos) {
 		this.volumenGeneral = volumenEfectos;
+	}
+
+	public int getPuntuacion() {
+		return puntuacion;
 	}
 }
