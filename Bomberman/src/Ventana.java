@@ -24,8 +24,9 @@ public class Ventana extends JFrame {
     private float movimientoEnemigo = 2.5f; //Velocidad de enemigos (segundos)
 	private int tiempoExplosionBombas = 2; //Segundos que tardará en explotar la bomba
 	private float tiempoFuegoBombas = 1f; //Segundos que durará la explosión
-    private float volumenSonidos = 0.02f; //Volumen de los sonidos del juego
-
+    private float volumenGeneral = 0.02f; //Volumen general del juego
+    private float volumenEfectos = 0.05f; //Volumen de los efectos
+    
 	public Ventana() throws IOException {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 403, 461);
@@ -53,7 +54,7 @@ public class Ventana extends JFrame {
 
 		reloj.iniciar();
 		Mapa mapa = new Mapa(nivel1.getMatriz(), rompibles, cantidadEnemigos, 
-				movimientoEnemigo, tiempoFuegoBombas, volumenSonidos);	
+				movimientoEnemigo, tiempoFuegoBombas, volumenGeneral, volumenEfectos);	
 		contentPane.add(mapa, BorderLayout.CENTER);
 		
 		//Timer para la deteccion de colisiones
@@ -143,8 +144,7 @@ public class Ventana extends JFrame {
 				        int columnaJugador = mapa.getJugador().getColumnaJugador();
 				        
 				        Bomba bomba = new Bomba(filaJugador, columnaJugador, tiempoExplosionBombas);
-				        
-				        
+				         
 				        // Agregar la bomba al mapa
 				        mapa.agregarBomba(bomba);
 				        repaint();

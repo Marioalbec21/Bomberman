@@ -47,10 +47,11 @@ public class Mapa extends JPanel {
     private int cantidadEnemigos = 0;
     private float movimientoEnemigo = 0f;
     private float tiempoFuegoBombas = 0f;
-    private float volumenSonidos = 0f;
+    private float volumenGeneral = 0f;
+    private float volumenEfectos = 0f;
 
     public Mapa(int[][] mapa, float rompibles, int cantidadEnemigos, 
-    		float movimientoEnemigo, float tiempoFuegoBombas, float volumenSonidos) {
+    		float movimientoEnemigo, float tiempoFuegoBombas, float volumenGeneral, float volumenEfectos) {
     	        
         this.mapa = mapa;
         this.filas = mapa.length;
@@ -59,14 +60,15 @@ public class Mapa extends JPanel {
         this.cantidadEnemigos = cantidadEnemigos;
         this.movimientoEnemigo = movimientoEnemigo;
         this.tiempoFuegoBombas = tiempoFuegoBombas;
-        this.volumenSonidos = volumenSonidos;
+        this.volumenGeneral = volumenGeneral;
+        this.volumenEfectos = volumenEfectos;
         
         setLayout(new GridLayout(filas, columnas));
         setVisible(true);
 		setFocusable(true);
 		
 		//Generacion del mapa
-		fondo.play(volumenSonidos);
+		fondo.play(volumenGeneral);
 		generarSuelo();
 		generarParedesRompibles();
 		generarJugador();
@@ -254,7 +256,7 @@ public class Mapa extends JPanel {
     public void agregarBomba(Bomba bomba) {
         int fila = bomba.getFilaBomba();
         int columna = bomba.getColumnaBomba();
-        soltar.playSoltar(volumenSonidos);
+        soltar.playSoltar(volumenEfectos);
         
         //Verificar si la posición es válida en el mapa
         if (fila >= 0 && fila < filas && columna >= 0 && columna < columnas) {
@@ -270,7 +272,7 @@ public class Mapa extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 eliminarBomba(bomba);
                 explotarBomba(bomba);
-                explosion.playExplosion(volumenSonidos);
+                explosion.playExplosion(volumenEfectos);
             }
         });
         timer.setRepeats(false); //Solo se ejecuta una vez
@@ -458,7 +460,7 @@ public class Mapa extends JPanel {
         repaint();
         
         fondo.detener();
-        fondo.play(volumenSonidos);
+        fondo.play(volumenGeneral);
         limpiarMapa();
 		generarSuelo();
 		generarParedesRompibles();
@@ -532,7 +534,11 @@ public class Mapa extends JPanel {
 		this.tiempoFuegoBombas = tiempoFuegoBombas;
 	}
 
-	public void setVolumenSonidos(float volumenSonidos) {
-		this.volumenSonidos = volumenSonidos;
+	public void setVolumenGeneral(float volumenGeneral) {
+		this.volumenGeneral = volumenGeneral;
+	}
+	
+	public void setVolumenEfectos(float volumenEfectos) {
+		this.volumenGeneral = volumenEfectos;
 	}
 }
