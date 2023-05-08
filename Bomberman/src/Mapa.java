@@ -16,6 +16,8 @@ public class Mapa extends JPanel {
 	private Timer timerEnemigos;
 	private Timer timerBombas;
 
+	private Musica fondo = new Musica();
+
     private static final long serialVersionUID = 1L;
     private int[][] mapa;
     private int filas = 0;
@@ -46,6 +48,9 @@ public class Mapa extends JPanel {
     
     public Mapa(int[][] mapa, float rompibles, int cantidadEnemigos, 
     		float movimientoEnemigo, float tiempoFuegoBombas) {
+    	
+        fondo.play(0.02f);
+        
         this.mapa = mapa;
         this.filas = mapa.length;
         this.columnas = mapa[0].length;
@@ -395,6 +400,7 @@ public class Mapa extends JPanel {
     
     public boolean eleccionSalida() {
     	if(!jugador.isVisible()) {
+    		fondo.detener();
         	JOptionPane.showMessageDialog(null, "¡Game Over!");
     	}
   	    int opcion = JOptionPane.showConfirmDialog(null, "¿Deseas jugar otro nivel?", "Nuevo nivel", JOptionPane.YES_NO_OPTION);

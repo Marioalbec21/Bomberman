@@ -22,4 +22,10 @@ public class Musica {
             System.err.println("Error al reproducir la música de fondo: " + e.getMessage());
         }
     }
+    
+    public void detener() {
+        // Detener la reproducción de la música y cerrar el Clip
+        clip.stop();
+        clip.close();
+    }
 }
