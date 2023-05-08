@@ -4,7 +4,6 @@ import java.awt.Font;
 import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,6 +23,7 @@ public class Reloj extends JPanel {
         tiempoLabel.setForeground(Color.BLACK);
         tiempoLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         tiempoLabel.setHorizontalAlignment(JLabel.CENTER);
+        setBackground(new Color(128, 255, 255));
         setLayout(new BorderLayout());
         add(tiempoLabel, BorderLayout.CENTER);
     }

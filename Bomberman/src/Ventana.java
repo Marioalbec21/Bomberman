@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
 import java.awt.Font;
+import javax.swing.JLabel;
 
 public class Ventana extends JFrame {
 	
@@ -45,9 +46,15 @@ public class Ventana extends JFrame {
 		panel_2.setBackground(new Color(128, 255, 255));
 		contentPane.add(panel_2, BorderLayout.EAST);
 		
+		JPanel panel_3 = new JPanel(new BorderLayout());
+		panel_3.setBackground(new Color(128, 255, 255));
+		contentPane.add(panel_3, BorderLayout.NORTH);
+		
+		Puntuacion puntuacion = new Puntuacion();
+		panel_3.add(puntuacion, BorderLayout.WEST);
+
 		Reloj reloj = new Reloj();
-		reloj.setBackground(new Color(128, 255, 255));
-		contentPane.add(reloj, BorderLayout.NORTH);
+		panel_3.add(reloj, BorderLayout.EAST);
 		
 		//Mapas
 		Carga nivel1 = new Carga("Bomberman/resources/nivel1.png");
