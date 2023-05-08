@@ -5,7 +5,7 @@ import javax.imageio.ImageIO;
 
 public class Enemigo {
 	
-	//Dibujo del jugador
+	//Dibujo del enemigo
 	private BufferedImage dibujo;
 
     //Ubicación del enemigo

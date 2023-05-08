@@ -1,6 +1,7 @@
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import javax.swing.JButton;
@@ -15,6 +16,14 @@ import java.awt.Font;
 public class Ventana extends JFrame {
 	
 	private JPanel contentPane;
+	private Timer timer;
+	
+	//Variables
+    private float rompibles = 0.4f; //Probabilidad de generar una pared rompible (entre 0 y 1)
+    private int cantidadEnemigos = 3; //Cantidad de enemigos en el mapa
+    private float movimientoEnemigo = 2.5f; //Velocidad de enemigos (segundos)
+	private int tiempoExplosionBombas = 2; //Segundos que tardará en explotar la bomba
+	private float tiempoFuegoBombas = 1f; //Segundos que durará la explosión
 	
 	public Ventana() throws IOException {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -42,9 +51,26 @@ public class Ventana extends JFrame {
 		Carga nivel1 = new Carga("resources/nivel1.png");
 
 		reloj.iniciar();
-		Mapa mapa = new Mapa(nivel1.getMatriz());
+		Mapa mapa = new Mapa(nivel1.getMatriz(), rompibles, cantidadEnemigos, 
+				movimientoEnemigo, tiempoFuegoBombas);	
 		contentPane.add(mapa, BorderLayout.CENTER);
 		
+		//Timer para la deteccion de colisiones
+		timer = new Timer(100, e -> {
+        	if(mapa.detectarColisionJugador()) {
+        		reloj.detener();
+        		
+            	if(mapa.eleccionSalida()) {
+            		mapa.reiniciarJuego();
+            		reloj.reiniciar();
+            	}
+            	else {
+            		System.exit(0);
+            	}                	
+            }
+        });
+        timer.start();
+        
 		//Metodos teclado
         mapa.addKeyListener(new KeyListener() {
 
@@ -90,6 +116,18 @@ public class Ventana extends JFrame {
 				        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()+1);
 				            repaint();
 				        }
+			        }
+				    //Genera 1 bomba en la posisión del jugador
+				    if (tecla == KeyEvent.VK_SPACE) {
+
+				        int filaJugador = mapa.getJugador().getFilaJugador();
+				        int columnaJugador = mapa.getJugador().getColumnaJugador();
+				        
+				        Bomba bomba = new Bomba(filaJugador, columnaJugador, tiempoExplosionBombas);
+				        
+				        // Agregar la bomba al mapa
+				        mapa.agregarBomba(bomba);
+				        repaint();
 			        }
 			    }
 			    else {

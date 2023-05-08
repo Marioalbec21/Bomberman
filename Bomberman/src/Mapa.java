@@ -1,8 +1,12 @@
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import javax.swing.Timer;
@@ -10,8 +14,8 @@ import javax.swing.Timer;
 public class Mapa extends JPanel {
 
 	private Timer timerEnemigos;
-	private Timer timerColision;
-;
+	private Timer timerBombas;
+
     private static final long serialVersionUID = 1L;
     private int[][] mapa;
     private int filas = 0;
@@ -19,7 +23,8 @@ public class Mapa extends JPanel {
     
     private int[][] matrizSuelo;
     private int[][] matrizRompibles;
-    
+    private int[][] matrizBombas;
+
     //Iniciar recursos
     private Jugador jugador = new Jugador();
     private List<Enemigo> enemigos = new ArrayList<>();
@@ -28,19 +33,27 @@ public class Mapa extends JPanel {
     private Carga pasto2 = new Carga("resources/pasto2.png");;
     private Carga paredes = new Carga("resources/pared1.png");
     private Carga paredesRompibles = new Carga("resources/pared2.png");;
-    
+    private Carga bomba = new Carga("resources/bomba.png");;
+    private Carga fuego = new Carga("resources/fuego.png");;
+
     private boolean mapaCompletado = false;
     		
     //Variables
-    private float probabilidadParedesRompibles = 0f; //Probabilidad de generar una pared rompible (entre 0 y 1)
-    private int cantidadEnemigos = 3; //Cantidad de enemigos en el mapa
-    private int intervaloMovimientoEnemigos = 500; //Velocidad de enemigos (mientras mas bajo, mas rapidos serán)
-
-    public Mapa(int[][] mapa) {
+    private float rompibles = 0f;
+    private int cantidadEnemigos = 0;
+    private float movimientoEnemigo = 0f;
+    private float tiempoFuegoBombas = 0f;
+    
+    public Mapa(int[][] mapa, float rompibles, int cantidadEnemigos, 
+    		float movimientoEnemigo, float tiempoFuegoBombas) {
         this.mapa = mapa;
         this.filas = mapa.length;
         this.columnas = mapa[0].length;
-
+        this.rompibles = rompibles;
+        this.cantidadEnemigos = cantidadEnemigos;
+        this.movimientoEnemigo = movimientoEnemigo;
+        this.tiempoFuegoBombas = tiempoFuegoBombas;
+        
         setLayout(new GridLayout(filas, columnas));
         setVisible(true);
 		setFocusable(true);
@@ -51,7 +64,9 @@ public class Mapa extends JPanel {
 		generarJugador();
 		generarEnemigos();
 		iniciarTimerEnemigos();
-		iniciarTimerColision();
+		iniciarTimerBombas();
+		
+	    matrizBombas = new int[filas][columnas];
 	}
 
     @Override
@@ -79,21 +94,19 @@ public class Mapa extends JPanel {
                 }
                 //Dibuja las paredes no rompibles
                 if (mapa[i][j] == 1 && matrizRompibles[i][j] == 0) {
-                	switch (mapa[i][j]) {
-	                	case 1:
-	                		g.drawImage(paredes.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
-	                		break;
-                	}
+            		g.drawImage(paredes.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
                 }
                 //Dibuja las paredes rompibles
                 if (mapa[i][j] == 1 && matrizRompibles[i][j] == 1) {
-                    switch (matrizRompibles[i][j]) {
-                        case 1:
-                        	g.drawImage(paredesRompibles.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
-                            break;
-                    }
+                	g.drawImage(paredesRompibles.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
                 }
-                
+                //Dibuja las bombas
+                if (mapa[i][j] == 0 && matrizBombas[i][j] == 1) {
+                    g.drawImage(bomba.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
+                } 
+                if (mapa[i][j] == 0 && matrizBombas[i][j] == 2) {
+                	g.drawImage(fuego.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
+                }
                 if (jugador.isVisible()) {
                 	//Dibuja la imagen en la posición del jugador
                 	g.drawImage(jugador.getDibujo(), jugador.getColumnaJugador() * anchoCelda, jugador.getFilaJugador() * altoCelda, anchoCelda, altoCelda, null);
@@ -108,25 +121,24 @@ public class Mapa extends JPanel {
     }
     
     private void iniciarTimerEnemigos() {
-        timerEnemigos = new Timer(intervaloMovimientoEnemigos, e -> {
+        timerEnemigos = new Timer(Math.round(movimientoEnemigo * 1000 / 10), e -> {
             moverEnemigos();
         });
         timerEnemigos.start();
     }
     
-    private void iniciarTimerColision() {
-        timerColision = new Timer(100, e -> {
-        	if(detectarColisionJugador()) {
-            	if(eleccionSalida()) {
-            		reiniciarJuego();
-            		jugador.setVisible(true);
-            	}
-            	else {
-            		System.exit(0);
-            	}                	
+    private void iniciarTimerBombas() {
+        timerBombas = new Timer(Math.round(tiempoFuegoBombas * 1000), e -> {
+            for (int i = 0; i < filas; i++) {
+                for (int j = 0; j < columnas; j++) {
+                    if (matrizBombas[i][j] == 2) {
+                        matrizBombas[i][j] = 0;
+                    }
+                }
             }
+            repaint();
         });
-        timerColision.start();
+        timerBombas.start();
     }
     
     public void generarSuelo() {
@@ -152,7 +164,7 @@ public class Mapa extends JPanel {
                 if(mapa[i][j] == 0) {
                     Random random = new Random();   
                     
-                    if (random.nextFloat() <= probabilidadParedesRompibles) {
+                    if (random.nextFloat() <= rompibles) {
                         matrizRompibles[i][j] = 1;
                     	mapa[i][j] = 1;
                     }
@@ -198,6 +210,104 @@ public class Mapa extends JPanel {
         }
     }
 
+    public void agregarBomba(Bomba bomba) {
+        int fila = bomba.getFilaBomba();
+        int columna = bomba.getColumnaBomba();
+        
+        //Verificar si la posición es válida en el mapa
+        if (fila >= 0 && fila < filas && columna >= 0 && columna < columnas) {
+            //Verificar si no hay otra bomba en la misma posición
+            if (!hayBombaEnPosicion(fila, columna)) {
+                //Agregar la bomba al mapa
+            	matrizBombas[fila][columna] = 1;
+            }
+        }
+        //Inicia el temporizador para eliminar la bomba después de 3 segundos
+        Timer timer = new Timer(bomba.getTiempoExplosion()*1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                eliminarBomba(bomba);
+                explotarBomba(bomba);
+            }
+        });
+        timer.setRepeats(false); //Solo se ejecuta una vez
+        timer.start();
+    }
+
+    private void eliminarBomba(Bomba bomba) {
+        int fila = bomba.getFilaBomba();
+        int columna = bomba.getColumnaBomba();
+        
+        //Verificar si la posición de la bomba aún es válida
+        if (fila >= 0 && fila < filas && columna >= 0 && columna < columnas) {
+            //Verifica si la bomba todavía está en esa posición
+            if (matrizBombas[fila][columna] == 1) {
+            	matrizBombas[fila][columna] = 0; //Elimina la bomba del mapa
+                repaint();
+            }
+        }
+    }
+    
+    public void explotarBomba(Bomba bomba) {
+        int fila = bomba.getFilaBomba();
+        int columna = bomba.getColumnaBomba();
+
+        for (int i = fila; i >= Math.max(fila - 3, 0); i--) {
+            if (matrizRompibles[i][columna] == 1) {
+                mapa[i][columna] = 0;
+            } else if (mapa[i][columna] == 1) {
+                break;
+            }
+            matrizBombas[i][columna] = 2;
+        }
+
+        for (int i = fila; i <= Math.min(fila + 3, filas - 1); i++) {
+            if (matrizRompibles[i][columna] == 1) {
+                mapa[i][columna] = 0;
+            } else if (mapa[i][columna] == 1) {
+                break;
+            }
+            matrizBombas[i][columna] = 2;
+        }
+
+        for (int j = columna; j >= Math.max(columna - 3, 0); j--) {
+            if (matrizRompibles[fila][j] == 1) {
+                mapa[fila][j] = 0;
+            } else if (mapa[fila][j] == 1) {
+                break;
+            }
+            matrizBombas[fila][j] = 2;
+        }
+
+        for (int j = columna; j <= Math.min(columna + 3, columnas - 1); j++) {
+            if (matrizRompibles[fila][j] == 1) {
+                mapa[fila][j] = 0;
+            } else if (mapa[fila][j] == 1) {
+                break;
+            }
+            matrizBombas[fila][j] = 2;
+        }
+
+        //Elimina enemigos en la posición de la explosión
+        Iterator<Enemigo> iterator = enemigos.iterator();
+        while (iterator.hasNext()) {
+            Enemigo enemigo = iterator.next();
+            int enemigoFila = enemigo.getFilaEnemigo();
+            int enemigoColumna = enemigo.getColumnaEnemigo();
+
+            //Verifica si el enemigo se encuentra en la cruz de la explosión o en el fuego
+            if ((enemigoFila == fila && enemigoColumna >= columna - 1 && enemigoColumna <= columna + 1) ||
+                (enemigoColumna == columna && enemigoFila >= fila - 1 && enemigoFila <= fila + 1) ||
+                matrizBombas[enemigoFila][enemigoColumna] == 2) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private boolean hayBombaEnPosicion(int fila, int columna) {
+        return mapa[fila][columna] == 1;
+    }
+
     public void moverEnemigos() {
         Random random = new Random();
 
@@ -208,33 +318,50 @@ public class Mapa extends JPanel {
             int direccion = random.nextInt(4); //0: arriba, 1: abajo, 2: izquierda, 3: derecha
 
             switch (direccion) {
-                case 0: //Arriba
-                    if (filaActual > 0 && mapa[filaActual - 1][columnaActual] == 0 && 
-                    	matrizRompibles[filaActual - 1][columnaActual] == 0) {
-                        enemigo.setFilaEnemigo(filaActual - 1);
-                    }
-                    break;
-                case 1: //Abajo
-                    if (filaActual < filas - 1 && mapa[filaActual + 1][columnaActual] == 0 && 
-                    	matrizRompibles[filaActual + 1][columnaActual] == 0) {
-                        enemigo.setFilaEnemigo(filaActual + 1);
-                    }
-                    break;
-                case 2: //Izquierda
-                    if (columnaActual > 0 && mapa[filaActual][columnaActual - 1] == 0 && 
-                    	matrizRompibles[filaActual][columnaActual - 1] == 0) {
-                        enemigo.setColumnaEnemigo(columnaActual - 1);
-                    }
-                    break;
-                case 3: //Derecha
-                    if (columnaActual < columnas - 1 && mapa[filaActual][columnaActual + 1] == 0 && 
-                    	matrizRompibles[filaActual][columnaActual + 1] == 0) {
-                        enemigo.setColumnaEnemigo(columnaActual + 1);
-                    }
-                    break;
+            case 0: //Arriba
+                if (filaActual > 0 && mapa[filaActual - 1][columnaActual] == 0 &&
+                    matrizRompibles[filaActual - 1][columnaActual] == 0 &&
+                    matrizBombas[filaActual - 1][columnaActual] == 0 &&
+                    !hayEnemigoEnPosicion(filaActual - 1, columnaActual)) {
+                    enemigo.setFilaEnemigo(filaActual - 1);
+                }
+                break;
+            case 1: //Abajo
+                if (filaActual < filas - 1 && mapa[filaActual + 1][columnaActual] == 0 &&
+                    matrizRompibles[filaActual + 1][columnaActual] == 0 &&
+                    matrizBombas[filaActual + 1][columnaActual] == 0 &&
+                    !hayEnemigoEnPosicion(filaActual + 1, columnaActual)) {
+                    enemigo.setFilaEnemigo(filaActual + 1);
+                }
+                break;
+            case 2: //Izquierda
+                if (columnaActual > 0 && mapa[filaActual][columnaActual - 1] == 0 &&
+                    matrizRompibles[filaActual][columnaActual - 1] == 0 &&
+                    matrizBombas[filaActual][columnaActual - 1] == 0 &&
+                    !hayEnemigoEnPosicion(filaActual, columnaActual - 1)) {
+                    enemigo.setColumnaEnemigo(columnaActual - 1);
+                }
+                break;
+            case 3: //Derecha
+                if (columnaActual < columnas - 1 && mapa[filaActual][columnaActual + 1] == 0 &&
+                    matrizRompibles[filaActual][columnaActual + 1] == 0 &&
+                    matrizBombas[filaActual][columnaActual + 1] == 0 &&
+                    !hayEnemigoEnPosicion(filaActual, columnaActual + 1)) {
+                    enemigo.setColumnaEnemigo(columnaActual + 1);
+                }
+                break;
             }
         }
         repaint();
+    }
+
+    private boolean hayEnemigoEnPosicion(int fila, int columna) {
+        for (Enemigo enemigo : enemigos) {
+            if (enemigo.getFilaEnemigo() == fila && enemigo.getColumnaEnemigo() == columna) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean detectarColisionJugador() {
@@ -246,7 +373,6 @@ public class Mapa extends JPanel {
 	            	
 	            	jugador.setVisible(false);
 	            	colision = true;
-	            	JOptionPane.showMessageDialog(null, "¡Game Over!");
 	            }
 	        }
         }
@@ -260,11 +386,17 @@ public class Mapa extends JPanel {
     			if (mapa[i][j] == 1 && matrizRompibles[i][j] == 1) {
     				mapa[i][j] = 0;
     			}
+    			if (mapa[i][j] == 0 && matrizBombas[i][j] == 1) {
+    				matrizBombas[i][j] = 0;
+    			}
     		}
     	}
     }
     
     public boolean eleccionSalida() {
+    	if(!jugador.isVisible()) {
+        	JOptionPane.showMessageDialog(null, "¡Game Over!");
+    	}
   	    int opcion = JOptionPane.showConfirmDialog(null, "¿Deseas jugar otro nivel?", "Nuevo nivel", JOptionPane.YES_NO_OPTION);
         
         if (opcion == JOptionPane.YES_OPTION) {
@@ -283,6 +415,7 @@ public class Mapa extends JPanel {
 		generarSuelo();
 		generarParedesRompibles();
         generarJugador();
+    	jugador.setVisible(true);
 		generarEnemigos();
     }
     
@@ -325,5 +458,21 @@ public class Mapa extends JPanel {
 
 	public boolean isMapaCompletado() {
 		return mapaCompletado;
+	}
+
+	public void setRompibles(float rompibles) {
+		this.rompibles = rompibles;
+	}
+
+	public void setCantidadEnemigos(int cantidadEnemigos) {
+		this.cantidadEnemigos = cantidadEnemigos;
+	}
+
+	public void setMovimientoEnemigo(float movimientoEnemigo) {
+		this.movimientoEnemigo = movimientoEnemigo;
+	}
+
+	public void setTiempoFuegoBombas(float tiempoFuegoBombas) {
+		this.tiempoFuegoBombas = tiempoFuegoBombas;
 	}
 }
