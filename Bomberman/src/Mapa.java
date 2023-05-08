@@ -17,6 +17,8 @@ public class Mapa extends JPanel {
 	private Timer timerBombas;
 
 	private Musica fondo = new Musica();
+	private Musica soltar = new Musica();
+	private Musica explosion = new Musica();
 
     private static final long serialVersionUID = 1L;
     private int[][] mapa;
@@ -252,6 +254,7 @@ public class Mapa extends JPanel {
     public void agregarBomba(Bomba bomba) {
         int fila = bomba.getFilaBomba();
         int columna = bomba.getColumnaBomba();
+        soltar.playSoltar(volumenSonidos);
         
         //Verificar si la posición es válida en el mapa
         if (fila >= 0 && fila < filas && columna >= 0 && columna < columnas) {
@@ -267,6 +270,7 @@ public class Mapa extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 eliminarBomba(bomba);
                 explotarBomba(bomba);
+                explosion.playExplosion(volumenSonidos);
             }
         });
         timer.setRepeats(false); //Solo se ejecuta una vez
@@ -414,6 +418,7 @@ public class Mapa extends JPanel {
 	            }
 	        }
         }
+        ////////////////////////////////////////////////////////////////////777
         return colision;
     }
 
