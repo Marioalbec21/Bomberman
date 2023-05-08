@@ -45,12 +45,11 @@ public class Mapa extends JPanel {
     private int cantidadEnemigos = 0;
     private float movimientoEnemigo = 0f;
     private float tiempoFuegoBombas = 0f;
-    
+    private float volumenSonidos = 0f;
+
     public Mapa(int[][] mapa, float rompibles, int cantidadEnemigos, 
-    		float movimientoEnemigo, float tiempoFuegoBombas) {
-    	
-        fondo.play(0.02f);
-        
+    		float movimientoEnemigo, float tiempoFuegoBombas, float volumenSonidos) {
+    	        
         this.mapa = mapa;
         this.filas = mapa.length;
         this.columnas = mapa[0].length;
@@ -58,12 +57,14 @@ public class Mapa extends JPanel {
         this.cantidadEnemigos = cantidadEnemigos;
         this.movimientoEnemigo = movimientoEnemigo;
         this.tiempoFuegoBombas = tiempoFuegoBombas;
+        this.volumenSonidos = volumenSonidos;
         
         setLayout(new GridLayout(filas, columnas));
         setVisible(true);
 		setFocusable(true);
 		
 		//Generacion del mapa
+		fondo.play(volumenSonidos);
 		generarSuelo();
 		generarParedesRompibles();
 		generarJugador();
@@ -109,18 +110,19 @@ public class Mapa extends JPanel {
                 if (mapa[i][j] == 0 && matrizBombas[i][j] == 1) {
                     g.drawImage(bomba.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
                 } 
-                if (mapa[i][j] == 0 && matrizBombas[i][j] == 2) {
-                	g.drawImage(fuego.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
-                }
+                //Dibuja la imagen en la posición del jugador
                 if (jugador.isVisible()) {
-                	//Dibuja la imagen en la posición del jugador
                 	g.drawImage(jugador.getDibujo(), jugador.getColumnaJugador() * anchoCelda, jugador.getFilaJugador() * altoCelda, anchoCelda, altoCelda, null);
                 }
-               
                 //Dibuja la imagen de cada enemigo en su posición correspondiente
                 for (Enemigo enemigo : enemigos) {
                 	g.drawImage(enemigo.getDibujo(), enemigo.getColumnaEnemigo() * anchoCelda, enemigo.getFilaEnemigo() * altoCelda, anchoCelda, altoCelda, null);
                 } 
+                //Dibuja el fuego de las bombas
+                if (mapa[i][j] == 0 && matrizBombas[i][j] == 2) {
+                	g.drawImage(fuego.getDibujo(), j * anchoCelda, i * altoCelda, anchoCelda, altoCelda, null);
+                }
+               
             }
         }
     }
@@ -138,6 +140,7 @@ public class Mapa extends JPanel {
                 for (int j = 0; j < columnas; j++) {
                     if (matrizBombas[i][j] == 2) {
                         matrizBombas[i][j] = 0;
+                        
                     }
                 }
             }
@@ -187,6 +190,21 @@ public class Mapa extends JPanel {
             
             if (mapa[jugador.getFilaJugador()][jugador.getColumnaJugador()] == 0 
             		&& matrizRompibles[jugador.getFilaJugador()][jugador.getColumnaJugador()] == 0) {
+            	
+            	// Verificar que las posiciones adyacentes estén libres de paredes
+                if (jugador.getFilaJugador() > 0 && matrizRompibles[jugador.getFilaJugador() - 1][jugador.getColumnaJugador()] == 1) {
+                	mapa[jugador.getFilaJugador() - 1][jugador.getColumnaJugador()] = 0; //Borrar pared
+                }
+                if (jugador.getFilaJugador() < filas - 1 && matrizRompibles[jugador.getFilaJugador() + 1][jugador.getColumnaJugador()] == 1) {
+                	mapa[jugador.getFilaJugador() + 1][jugador.getColumnaJugador()] = 0; //Borrar pared
+                }
+                if (jugador.getColumnaJugador() > 0 && matrizRompibles[jugador.getFilaJugador()][jugador.getColumnaJugador() - 1] == 1) {
+                	mapa[jugador.getFilaJugador()][jugador.getColumnaJugador() - 1] = 0; //Borrar pared
+                }
+                if (jugador.getColumnaJugador() < columnas - 1 && matrizRompibles[jugador.getFilaJugador()][jugador.getColumnaJugador() + 1] == 1) {
+                	mapa[jugador.getFilaJugador()][jugador.getColumnaJugador() + 1] = 0; //Borrar pared
+                }
+
                 break;
             }
         }
@@ -203,8 +221,24 @@ public class Mapa extends JPanel {
                 int fila = random.nextInt(filas);
                 int columna = random.nextInt(columnas);
 
+                //Valida que la posición generada no esté ocupada por el jugador
                 if (mapa[fila][columna] == 0 && matrizRompibles[fila][columna] == 0 &&
                     !(fila == jugador.getFilaJugador() && columna == jugador.getColumnaJugador())) {
+                   
+                	//Borra las paredes rompibles a los lados de los enemigos
+                	if (fila > 0 && matrizRompibles[fila - 1][columna] == 1) {
+                		mapa[fila - 1][columna] = 0;
+                    }
+                    if (fila < filas - 1 && matrizRompibles[fila + 1][columna] == 1) {
+                    	mapa[fila + 1][columna] = 0;
+                    }
+                    if (columna > 0 && matrizRompibles[fila][columna - 1] == 1) {
+                    	mapa[fila][columna - 1] = 0;
+                    }
+                    if (columna < columnas - 1 && matrizRompibles[fila][columna + 1] == 1) {
+                        mapa[fila][columna + 1] = 0;
+                    }
+
                     enemigo.setFilaEnemigo(fila);
                     enemigo.setColumnaEnemigo(columna);
                     break;
@@ -292,7 +326,7 @@ public class Mapa extends JPanel {
             }
             matrizBombas[fila][j] = 2;
         }
-
+        
         //Elimina enemigos en la posición de la explosión
         Iterator<Enemigo> iterator = enemigos.iterator();
         while (iterator.hasNext()) {
@@ -376,7 +410,6 @@ public class Mapa extends JPanel {
 	            if (jugador.getFilaJugador() == enemigo.getFilaEnemigo() && 
 	            		jugador.getColumnaJugador() == enemigo.getColumnaEnemigo()) {
 	            	
-	            	jugador.setVisible(false);
 	            	colision = true;
 	            }
 	        }
@@ -417,7 +450,8 @@ public class Mapa extends JPanel {
         requestFocusInWindow();
         repaint();
         
-        fondo.play(0.02f);
+        fondo.detener();
+        fondo.play(volumenSonidos);
         limpiarMapa();
 		generarSuelo();
 		generarParedesRompibles();
@@ -439,6 +473,10 @@ public class Mapa extends JPanel {
 		return mapa;
 	}
 	
+	public int[][] getMatrizBombas() {
+		return matrizBombas;
+	}
+
 	public int getFilas() {
 		return filas;
 	}
@@ -457,6 +495,10 @@ public class Mapa extends JPanel {
 
 	public Jugador getJugador() {
 		return jugador;
+	}
+	
+	public List<Enemigo> getEnemigos() {
+		return enemigos;
 	}
 
 	public void setMapaCompletado(boolean mapaCompletado) {
@@ -481,5 +523,9 @@ public class Mapa extends JPanel {
 
 	public void setTiempoFuegoBombas(float tiempoFuegoBombas) {
 		this.tiempoFuegoBombas = tiempoFuegoBombas;
+	}
+
+	public void setVolumenSonidos(float volumenSonidos) {
+		this.volumenSonidos = volumenSonidos;
 	}
 }

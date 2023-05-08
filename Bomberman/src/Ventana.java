@@ -19,12 +19,13 @@ public class Ventana extends JFrame {
 	private Timer timer;
 	
 	//Variables
-    private float rompibles = 0.4f; //Probabilidad de generar una pared rompible (entre 0 y 1)
+    private float rompibles = 0.5f; //Probabilidad de generar una pared rompible (entre 0 y 1)
     private int cantidadEnemigos = 3; //Cantidad de enemigos en el mapa
     private float movimientoEnemigo = 2.5f; //Velocidad de enemigos (segundos)
 	private int tiempoExplosionBombas = 2; //Segundos que tardará en explotar la bomba
 	private float tiempoFuegoBombas = 1f; //Segundos que durará la explosión
-	
+    private float volumenSonidos = 0.02f; //Volumen de los sonidos del juego
+
 	public Ventana() throws IOException {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 403, 461);
@@ -52,21 +53,36 @@ public class Ventana extends JFrame {
 
 		reloj.iniciar();
 		Mapa mapa = new Mapa(nivel1.getMatriz(), rompibles, cantidadEnemigos, 
-				movimientoEnemigo, tiempoFuegoBombas);	
+				movimientoEnemigo, tiempoFuegoBombas, volumenSonidos);	
 		contentPane.add(mapa, BorderLayout.CENTER);
 		
 		//Timer para la deteccion de colisiones
-		timer = new Timer(100, e -> {
-        	if(mapa.detectarColisionJugador()) {
-        		reloj.detener();
-        		
+		timer = new Timer(10, e -> {
+			
+            if (mapa.getMatrizBombas()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador()] == 2 ||
+            		mapa.detectarColisionJugador()) {
+            	
+            	mapa.getJugador().setVisible(false);
+            	reloj.detener();
             	if(mapa.eleccionSalida()) {
             		mapa.reiniciarJuego();
             		reloj.reiniciar();
             	}
             	else {
             		System.exit(0);
-            	}                	
+            	}    
+            }
+            if (mapa.getEnemigos().isEmpty()) {
+            	mapa.setMapaCompletado(true);
+            }
+            if(mapa.isMapaCompletado()) {
+            	reloj.detener();
+	    	    JOptionPane.showMessageDialog(null, "¡Felicidades, has ganado!");
+
+	        	if(mapa.eleccionSalida()) {	
+	        		reloj.reiniciar();
+	        		//juego.actualizarMapa(nivel2.getMatriz());
+	        	}
             }
         });
         timer.start();
@@ -83,63 +99,51 @@ public class Ventana extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 			    char tecla = e.getKeyChar();
-			    if (!mapa.isMapaCompletado()) {
-			    	
-				    //Mueve al jugador 1 casilla a la izquierda
-				    if (tecla == 'a') {
-				        if (mapa.getJugador().getColumnaJugador() > 0 && 
-				        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() - 1] != 1) {
-				        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()-1);
-				            repaint();
-				        }
-				    }
-				    //Mueve al jugador 1 casilla abajo
-				    if (tecla == 's') {
-				        if (mapa.getJugador().getFilaJugador() < mapa.getFilas() - 1 && 
-				        	mapa.getMapa()[mapa.getJugador().getFilaJugador() + 1][mapa.getJugador().getColumnaJugador()] != 1) {
-				        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()+1);
-				            repaint();
-				        }
-				    }
-				    //Mueve al jugador 1 casilla arriba
-				    if (tecla == 'w') {
-				    	if (mapa.getJugador().getFilaJugador() > 0 && 
-				    		mapa.getMapa()[mapa.getJugador().getFilaJugador() - 1][mapa.getJugador().getColumnaJugador()] != 1) {
-				        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()-1);
-				    		repaint();
-				    	}
-				    }
-				    //Mueve al jugador 1 casilla a la derecha
-				    if (tecla == 'd') {
-				        if (mapa.getJugador().getColumnaJugador() < mapa.getColumnas() - 1 && 
-				        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() + 1] != 1) {
-				        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()+1);
-				            repaint();
-				        }
-			        }
-				    //Genera 1 bomba en la posisión del jugador
-				    if (tecla == KeyEvent.VK_SPACE) {
-
-				        int filaJugador = mapa.getJugador().getFilaJugador();
-				        int columnaJugador = mapa.getJugador().getColumnaJugador();
-				        
-				        Bomba bomba = new Bomba(filaJugador, columnaJugador, tiempoExplosionBombas);
-				        
-				        
-				        // Agregar la bomba al mapa
-				        mapa.agregarBomba(bomba);
-				        repaint();
+			    //Mueve al jugador 1 casilla a la izquierda
+			    if (tecla == 'a') {
+			        if (mapa.getJugador().getColumnaJugador() > 0 && 
+			        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() - 1] != 1) {
+			        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()-1);
+			            repaint();
 			        }
 			    }
-			    else {
-			    	reloj.detener();
-		    	    JOptionPane.showMessageDialog(null, "¡Felicidades, has ganado!");
-
-		        	if(mapa.eleccionSalida()) {	
-		        		reloj.reiniciar();
-		        		//juego.actualizarMapa(nivel2.getMatriz());
-		        	}
+			    //Mueve al jugador 1 casilla abajo
+			    if (tecla == 's') {
+			        if (mapa.getJugador().getFilaJugador() < mapa.getFilas() - 1 && 
+			        	mapa.getMapa()[mapa.getJugador().getFilaJugador() + 1][mapa.getJugador().getColumnaJugador()] != 1) {
+			        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()+1);
+			            repaint();
+			        }
 			    }
+			    //Mueve al jugador 1 casilla arriba
+			    if (tecla == 'w') {
+			    	if (mapa.getJugador().getFilaJugador() > 0 && 
+			    		mapa.getMapa()[mapa.getJugador().getFilaJugador() - 1][mapa.getJugador().getColumnaJugador()] != 1) {
+			        	mapa.getJugador().setFilaJugador(mapa.getJugador().getFilaJugador()-1);
+			    		repaint();
+			    	}
+			    }
+			    //Mueve al jugador 1 casilla a la derecha
+			    if (tecla == 'd') {
+			        if (mapa.getJugador().getColumnaJugador() < mapa.getColumnas() - 1 && 
+			        	mapa.getMapa()[mapa.getJugador().getFilaJugador()][mapa.getJugador().getColumnaJugador() + 1] != 1) {
+			        	mapa.getJugador().setColumnaJugador(mapa.getJugador().getColumnaJugador()+1);
+			            repaint();
+			        }
+		        }
+			    //Genera 1 bomba en la posisión del jugador
+			    if (tecla == KeyEvent.VK_SPACE) {
+
+			        int filaJugador = mapa.getJugador().getFilaJugador();
+			        int columnaJugador = mapa.getJugador().getColumnaJugador();
+			        
+			        Bomba bomba = new Bomba(filaJugador, columnaJugador, tiempoExplosionBombas);
+			        
+			        
+			        // Agregar la bomba al mapa
+			        mapa.agregarBomba(bomba);
+			        repaint();
+		        }
 			}
 
 			@Override
