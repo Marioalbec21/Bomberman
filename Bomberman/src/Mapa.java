@@ -5,9 +5,13 @@ import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import javax.swing.Timer;
 
 public class Mapa extends JPanel {
 
+	private Timer timerEnemigos;
+	private Timer timerColision;
+;
     private static final long serialVersionUID = 1L;
     private int[][] mapa;
     private int filas = 0;
@@ -17,19 +21,20 @@ public class Mapa extends JPanel {
     private int[][] matrizRompibles;
     
     //Iniciar recursos
-    private Jugador jugador = null;
+    private Jugador jugador = new Jugador();
     private List<Enemigo> enemigos = new ArrayList<>();
-
-    private Carga pasto1 = null;
-    private Carga pasto2 = null;
-    private Carga paredes = null;
-    private Carga paredesRompibles = null;
+    
+    private Carga pasto1 = new Carga("resources/pasto1.png");;
+    private Carga pasto2 = new Carga("resources/pasto2.png");;
+    private Carga paredes = new Carga("resources/pared1.png");
+    private Carga paredesRompibles = new Carga("resources/pared2.png");;
     
     private boolean mapaCompletado = false;
-    
+    		
     //Variables
-    float probabilidadRompibles = 0.4f; //Probabilidad de generar una pared rompible (entre 0 y 1)
-    int cantidadEnemigos = 3; //Cantidad de enemigos en el mapa
+    private float probabilidadParedesRompibles = 0f; //Probabilidad de generar una pared rompible (entre 0 y 1)
+    private int cantidadEnemigos = 3; //Cantidad de enemigos en el mapa
+    private int intervaloMovimientoEnemigos = 500; //Velocidad de enemigos (mientras mas bajo, mas rapidos serán)
 
     public Mapa(int[][] mapa) {
         this.mapa = mapa;
@@ -40,11 +45,13 @@ public class Mapa extends JPanel {
         setVisible(true);
 		setFocusable(true);
 		
+		//Generacion del mapa
 		generarSuelo();
 		generarParedesRompibles();
-		cargarRecursos();
 		generarJugador();
-		generarEnemigo();
+		generarEnemigos();
+		iniciarTimerEnemigos();
+		iniciarTimerColision();
 	}
 
     @Override
@@ -87,14 +94,39 @@ public class Mapa extends JPanel {
                     }
                 }
                 
-                //Dibuja la imagen en la posición del jugador
-                g.drawImage(jugador.getDibujo(), jugador.getColumnaJugador() * anchoCelda, jugador.getFilaJugador() * altoCelda, anchoCelda, altoCelda, null);
+                if (jugador.isVisible()) {
+                	//Dibuja la imagen en la posición del jugador
+                	g.drawImage(jugador.getDibujo(), jugador.getColumnaJugador() * anchoCelda, jugador.getFilaJugador() * altoCelda, anchoCelda, altoCelda, null);
+                }
+               
                 //Dibuja la imagen de cada enemigo en su posición correspondiente
                 for (Enemigo enemigo : enemigos) {
-                    g.drawImage(enemigo.getDibujo(), enemigo.getColumnaEnemigo() * anchoCelda, enemigo.getFilaEnemigo() * altoCelda, anchoCelda, altoCelda, null);
-                }
+                	g.drawImage(enemigo.getDibujo(), enemigo.getColumnaEnemigo() * anchoCelda, enemigo.getFilaEnemigo() * altoCelda, anchoCelda, altoCelda, null);
+                } 
             }
         }
+    }
+    
+    private void iniciarTimerEnemigos() {
+        timerEnemigos = new Timer(intervaloMovimientoEnemigos, e -> {
+            moverEnemigos();
+        });
+        timerEnemigos.start();
+    }
+    
+    private void iniciarTimerColision() {
+        timerColision = new Timer(100, e -> {
+        	if(detectarColisionJugador()) {
+            	if(eleccionSalida()) {
+            		reiniciarJuego();
+            		jugador.setVisible(true);
+            	}
+            	else {
+            		System.exit(0);
+            	}                	
+            }
+        });
+        timerColision.start();
     }
     
     public void generarSuelo() {
@@ -120,23 +152,13 @@ public class Mapa extends JPanel {
                 if(mapa[i][j] == 0) {
                     Random random = new Random();   
                     
-                    if (random.nextFloat() <= probabilidadRompibles) {
+                    if (random.nextFloat() <= probabilidadParedesRompibles) {
                         matrizRompibles[i][j] = 1;
                     	mapa[i][j] = 1;
                     }
                 }
             }
         }
-    }
-    
-    public void cargarRecursos() {
-		jugador = new Jugador();
-	
-		pasto1 = new Carga("resources/pasto1.png");
-		pasto2 = new Carga("resources/pasto2.png");
-		
-		paredes = new Carga("resources/pared1.png");
-		paredesRompibles = new Carga("resources/pared2.png");
     }
     
     public void generarJugador() {
@@ -153,7 +175,7 @@ public class Mapa extends JPanel {
         }
     }
     
-    public void generarEnemigo() {
+    public void generarEnemigos() {
         Random random = new Random();
         enemigos.clear(); //Limpia la lista de enemigos
 
@@ -174,6 +196,61 @@ public class Mapa extends JPanel {
 
             enemigos.add(enemigo); //Agrega el enemigo generado a la lista de enemigos
         }
+    }
+
+    public void moverEnemigos() {
+        Random random = new Random();
+
+        for (Enemigo enemigo : enemigos) {
+            int filaActual = enemigo.getFilaEnemigo();
+            int columnaActual = enemigo.getColumnaEnemigo();
+
+            int direccion = random.nextInt(4); //0: arriba, 1: abajo, 2: izquierda, 3: derecha
+
+            switch (direccion) {
+                case 0: //Arriba
+                    if (filaActual > 0 && mapa[filaActual - 1][columnaActual] == 0 && 
+                    	matrizRompibles[filaActual - 1][columnaActual] == 0) {
+                        enemigo.setFilaEnemigo(filaActual - 1);
+                    }
+                    break;
+                case 1: //Abajo
+                    if (filaActual < filas - 1 && mapa[filaActual + 1][columnaActual] == 0 && 
+                    	matrizRompibles[filaActual + 1][columnaActual] == 0) {
+                        enemigo.setFilaEnemigo(filaActual + 1);
+                    }
+                    break;
+                case 2: //Izquierda
+                    if (columnaActual > 0 && mapa[filaActual][columnaActual - 1] == 0 && 
+                    	matrizRompibles[filaActual][columnaActual - 1] == 0) {
+                        enemigo.setColumnaEnemigo(columnaActual - 1);
+                    }
+                    break;
+                case 3: //Derecha
+                    if (columnaActual < columnas - 1 && mapa[filaActual][columnaActual + 1] == 0 && 
+                    	matrizRompibles[filaActual][columnaActual + 1] == 0) {
+                        enemigo.setColumnaEnemigo(columnaActual + 1);
+                    }
+                    break;
+            }
+        }
+        repaint();
+    }
+
+    public boolean detectarColisionJugador() {
+    	boolean colision = false;
+        if (jugador.isVisible()) {
+	        for (Enemigo enemigo : enemigos) {
+	            if (jugador.getFilaJugador() == enemigo.getFilaEnemigo() && 
+	            		jugador.getColumnaJugador() == enemigo.getColumnaEnemigo()) {
+	            	
+	            	jugador.setVisible(false);
+	            	colision = true;
+	            	JOptionPane.showMessageDialog(null, "¡Game Over!");
+	            }
+	        }
+        }
+        return colision;
     }
 
     public void limpiarMapa() {
@@ -199,14 +276,14 @@ public class Mapa extends JPanel {
     
 	public void reiniciarJuego() {
         mapaCompletado = false;
-        repaint();
         requestFocusInWindow();
+        repaint();
         
         limpiarMapa();
 		generarSuelo();
 		generarParedesRompibles();
         generarJugador();
-		generarEnemigo();
+		generarEnemigos();
     }
     
     public void actualizarMapa(int[][] mapa) {

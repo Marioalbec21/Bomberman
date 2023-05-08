@@ -8,6 +8,7 @@ public class Jugador {
 	
 	//Dibujo del jugador
 	private BufferedImage dibujo;
+	private boolean visible = true;
 
 	//Ubicación del jugador
     private int filaJugador;
@@ -25,7 +26,15 @@ public class Jugador {
     	return dibujo;
     }
     
-    public int getFilaJugador() {
+    public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
+	public int getFilaJugador() {
     	return filaJugador;
     }
     

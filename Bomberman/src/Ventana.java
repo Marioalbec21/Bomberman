@@ -58,7 +58,7 @@ public class Ventana extends JFrame {
 			public void keyPressed(KeyEvent e) {
 			    char tecla = e.getKeyChar();
 			    if (!mapa.isMapaCompletado()) {
-
+			    	
 				    //Mueve al jugador 1 casilla a la izquierda
 				    if (tecla == 'a') {
 				        if (mapa.getJugador().getColumnaJugador() > 0 && 
@@ -106,7 +106,6 @@ public class Ventana extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				// TODO Auto-generated method stub
-				
 			}
 		});
 		requestFocus(true);
