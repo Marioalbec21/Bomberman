@@ -58,6 +58,7 @@ public class Ventana extends JFrame {
 		
 		//Mapas
 		Carga nivel1 = new Carga("Bomberman/resources/nivel1.png");
+		Carga nivel2 = new Carga("Bomberman/resources/nivel2.png");
 
 		reloj.iniciar();
 		Mapa mapa = new Mapa(nivel1.getMatriz(), rompibles, cantidadEnemigos, 
@@ -89,10 +90,10 @@ public class Ventana extends JFrame {
             	reloj.detener();
 
 	        	if(mapa.eleccionSalida()) {	
+	        		mapa.actualizarMapa(nivel2.getMatriz());
             		mapa.reiniciarJuego();
             		puntuacion.reiniciarPuntuacion();
 	        		reloj.reiniciar();
-	        		//juego.actualizarMapa(nivel2.getMatriz());
 	        	}
 	        	else {
             		System.exit(0);
