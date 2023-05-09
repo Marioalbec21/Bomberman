@@ -20,6 +20,7 @@ public class Mapa extends JPanel {
 	private Musica soltar = new Musica();
 	private Musica explosion = new Musica();
 	private Musica muerte = new Musica();
+	private Musica gameover = new Musica();
 
     private static final long serialVersionUID = 1L;
     private int[][] mapa;
@@ -449,6 +450,7 @@ public class Mapa extends JPanel {
     	if(!jugador.isVisible()) {
     		fondo.detener();
     		muerte.playMuerte(volumenEfectos);
+    		gameover.playGOver(volumenEfectos);
         	JOptionPane.showMessageDialog(null, "¡Game Over!");
     	} else {
     	    JOptionPane.showMessageDialog(null, "¡Felicidades, has ganado!");
