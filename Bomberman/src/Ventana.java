@@ -1,5 +1,4 @@
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
@@ -12,7 +11,6 @@ import java.io.IOException;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
 import java.awt.Font;
-import javax.swing.JLabel;
 
 public class Ventana extends JFrame {
 	
@@ -20,7 +18,7 @@ public class Ventana extends JFrame {
 	private Timer timer;
 	
 	//Variables
-    private float rompibles = 0.5f; //Probabilidad de generar una pared rompible (entre 0 y 1)
+    private float rompibles = 0.4f; //Probabilidad de generar una pared rompible (entre 0 y 1)
     private int cantidadEnemigos = 3; //Cantidad de enemigos en el mapa
     private float movimientoEnemigo = 2.5f; //Velocidad de enemigos (segundos)
 	private int tiempoExplosionBombas = 2; //Segundos que tardará en explotar la bomba
@@ -32,6 +30,7 @@ public class Ventana extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 403, 461);
 		setResizable(false);
+		setLocationRelativeTo(null);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
